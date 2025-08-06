@@ -1,0 +1,3 @@
+[submodule "artifacts/GEM5"]
+	path = artifacts/GEM5
+	url = https://github.com/OpenXiangShan/GEM5
