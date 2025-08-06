@@ -146,7 +146,7 @@ jobs:
         if: always()
         run: |
           # Create archive directory with timestamp and commit
-          ARCHIVE_ROOT="/nfs/home/share/gem5_ci/performance_data"
+          ARCHIVE_ROOT="/nfs/home/xutongqiao/github-caches/cache_XiangShan-CkptFlow/GEM5-performance"
           BENCHMARK_DIR="${ARCHIVE_ROOT}/${{ inputs.benchmark_type }}"
           TIMESTAMP=$(date +"%Y%m%d_%H%M%S")
           COMMIT_SHORT=$(git rev-parse --short HEAD)
