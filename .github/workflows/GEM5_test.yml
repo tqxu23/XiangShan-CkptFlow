@@ -1,4 +1,4 @@
-name: CI Test
+name: GEM5 Test
 
 on:
   workflow_dispatch:
