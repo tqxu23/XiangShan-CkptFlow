@@ -54,7 +54,9 @@ jobs:
           cd artifacts/GEM5
           export GEM5_HOME=$(pwd)
           cd ext/dramsim3
-          git clone https://github.com/umd-memsys/DRAMsim3.git DRAMsim3
+          if [ ! -d "DRAMsim3/.git" ]; then
+            git clone https://github.com/umd-memsys/DRAMsim3.git DRAMsim3
+          fi
           cd DRAMsim3 && mkdir -p build
           cd build
           cmake ..
