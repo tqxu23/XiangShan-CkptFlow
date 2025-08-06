@@ -1,0 +1,28 @@
+name: CI Test
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+  workflow_dispatch:
+
+jobs:
+  run-hello:
+    runs-on: [self-hosted]
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Run hello.py and save output
+        run: python3 hello.py > output.txt
+
+      - name: Add hello.py output to Summary
+        run: |
+          echo "### hello.py Output" >> $GITHUB_STEP_SUMMARY
+          cat output.txt >> $GITHUB_STEP_SUMMARY
+
+      - name: Upload output.txt as Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: hello-output
+          path: output.txt
