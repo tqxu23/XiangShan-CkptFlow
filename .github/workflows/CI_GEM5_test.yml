@@ -77,8 +77,8 @@ jobs:
           export GEM5_HOME=$(pwd)
           export GEM5_BUILD_TYPE=fast
           mkdir -p $GEM5_HOME/util/xs_scripts/test
-          cp $CKPTFLOW_HOME/artifacts/gem5_config_kmhv2.sh ../gem5_config_kmhv2.sh
           cd $GEM5_HOME/util/xs_scripts/test
+          cp $CKPTFLOW_HOME/artifacts/gem5_config_kmhv2.sh ../gem5_config_kmhv2.sh
           bash ../parallel_sim.sh `realpath ${{ inputs.script_path }}` \
             ${{ steps.config.outputs.checkpoint_list }} \
             ${{ steps.config.outputs.checkpoint_root_node}} \
@@ -93,7 +93,9 @@ jobs:
           # 添加yanyue的 Python 包路径, 包含pandas等
           export PYTHONPATH=/nfs/home/yanyue/.local/lib/python3.10/site-packages:$PYTHONPATH
           # 每次run 会进入新的shell, 需要重新设置GEM5_HOME
-          export GEM5_HOME=$GITHUB_WORKSPACE
+          export CKPTFLOW_HOME=$(pwd)
+          cd artifacts/GEM5
+          export GEM5_HOME=$(pwd)
           cd $GITHUB_WORKSPACE/gem5_data_proc
           # 使用已有的数据spec_all生成测试报告
           bash example-scripts/${{ steps.config.outputs.score_script }} \

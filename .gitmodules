@@ -1,3 +1,6 @@
 [submodule "artifacts/GEM5"]
 	path = artifacts/GEM5
 	url = https://github.com/OpenXiangShan/GEM5
+[submodule "artifacts/qemu_rvvplugin"]
+	path = artifacts/qemu_rvvplugin
+	url = https://github.com/YiZhi-W813/qemu_rvvplugin
