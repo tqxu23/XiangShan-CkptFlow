@@ -30,7 +30,6 @@ jobs:
       - name: QEMU - Run performance test
         # ${{ steps.config.outputs.comment }}
         run: |
-          # 不使用全过程trace, 避免空间占用过大
           export CKPTFLOW_HOME=$(pwd)
           rm -rf rvvplugin_utils
           mkdir rvvplugin_utils
@@ -41,7 +40,7 @@ jobs:
           ./build/qemu-riscv64 -plugin ./build/contrib/plugins/libhotblocks.so \
             -d plugin \
             ${{ inputs.test_case }} \
-            2> $CKPTFLOW_HOME/rvvplugin_utils/plugin_rpt.txt 
+            2> $CKPTFLOW_HOME/rvvplugin_utils/plugin_rpt.txt  3> $CKPTFLOW_HOME/rvvplugin_utils/plugin_vinstrace.txt
           echo "::endgroup::"
 
       - name: Archive performance data
@@ -63,6 +62,7 @@ jobs:
           
           # Save result.txt for quick reference
           cp "$CKPTFLOW_HOME/rvvplugin_utils/plugin_rpt.txt" "$TARGET_DIR/"
+          cp "$CKPTFLOW_HOME/rvvplugin_utils/plugin_vinstrace.txt" "$TARGET_DIR/"
           
           # Save metadata
           echo "timestamp: $TIMESTAMP" > "$TARGET_DIR/metadata.txt"
@@ -86,11 +86,13 @@ jobs:
       - name: Add QEMU output to Summary
         run: |
           echo "### QEMU Output" >> $GITHUB_STEP_SUMMARY
-          cat ${{ github.workspace }}/rvvplugin_utils/plugin_rpt.txt >> $GITHUB_STEP_SUMMARY
+          head -100 ${{ github.workspace }}/rvvplugin_utils/plugin_rpt.txt >> $GITHUB_STEP_SUMMARY
+          echo "### RVV insts Output" >> $GITHUB_STEP_SUMMARY
+          cat ${{ github.workspace }}/rvvplugin_utils/plugin_vinstrace.txt >> $GITHUB_STEP_SUMMARY
 
       - name: Upload score
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ steps.config.outputs.artifact_name }}
-          path: ${{ github.workspace }}/rvvplugin_utils/plugin_rpt.txt
+          name: qemu_rvvplugin_result
+          path: ${{ github.workspace }}/rvvplugin_utils
