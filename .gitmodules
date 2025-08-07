@@ -4,3 +4,9 @@
 [submodule "artifacts/qemu_rvvplugin"]
 	path = artifacts/qemu_rvvplugin
 	url = https://github.com/YiZhi-W813/qemu_rvvplugin
+[submodule "artifacts/CPU2006LiteWrapper"]
+	path = artifacts/CPU2006LiteWrapper
+	url = https://github.com/OpenXiangShan/CPU2006LiteWrapper
+[submodule "artifacts/riscv-gnu-toolchain"]
+	path = artifacts/riscv-gnu-toolchain
+	url = https://github.com/riscv-collab/riscv-gnu-toolchain

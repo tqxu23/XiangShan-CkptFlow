@@ -1,0 +1,36 @@
+name: RISC-V Toolchain Test
+
+on:
+  workflow_dispatch:
+    inputs:
+      is_vector:
+        required: true
+        type: boolean
+        default: false
+
+jobs:
+  run-RISCV_toolchain-test:
+    runs-on: [self-hosted]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Clone RISCV toolchain submodule
+        run: |
+          export CKPTFLOW_HOME=$(pwd)
+          git submodule update --init artifacts/riscv-gnu-toolchain
+          cd artifacts/riscv-gnu-toolchain
+          git rm pk
+          git rm qemu
+          git rm spike
+          git submodule update --init --recursive
+          
+          # 编译命令
+          if [ "${{ github.event.inputs.is_vector }}" = "true" ]; then
+            echo "Configure with vector support"
+            mkdir $CKPTFLOW_HOME/riscv-toolchain-build-vector
+            ./configure --prefix=$CKPTFLOW_HOME/riscv-toolchain-build-vector --with-abi=lp64d --with-arch=rv64gcv
+          else
+            echo "Configure without vector support"
+            mkdir $CKPTFLOW_HOME/riscv-toolchain-build-scalar
+            ./configure --prefix=$CKPTFLOW_HOME/riscv-toolchain-build-scalar --with-abi=lp64d --with-arch=rv64gc
+          fi
+          make linux -j
