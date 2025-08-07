@@ -104,14 +104,14 @@ jobs:
           bash example-scripts/${{ steps.config.outputs.score_script }} \
             $GEM5_HOME/util/xs_scripts/test/spec_all \
             ${{ steps.config.outputs.cluster_config }} \
-            > $GITHUB_WORKSPACE/score.txt
+            > $GEM5_HOME/score.txt
           # 提取最后42行score信息
           echo "### performance test result :rocket:" >> $GITHUB_STEP_SUMMARY
           echo '```' >> $GITHUB_STEP_SUMMARY
-          tail -n 42 $GITHUB_WORKSPACE/score.txt >> $GITHUB_STEP_SUMMARY
+          tail -n 42 $GEM5_HOME/score.txt >> $GITHUB_STEP_SUMMARY
           echo '```' >> $GITHUB_STEP_SUMMARY
           # 提取关键指标
-          FINAL_SCORE=$(grep "Estimated Int score per GHz:" $GITHUB_WORKSPACE/score.txt | awk '{print $NF}')
+          FINAL_SCORE=$(grep "Estimated Int score per GHz:" $GEM5_HOME/score.txt | awk '{print $NF}')
           echo "### Key indicators" >> $GITHUB_STEP_SUMMARY
           echo "- Final Int score per GHz: **${FINAL_SCORE}**" >> $GITHUB_STEP_SUMMARY
           
@@ -133,6 +133,9 @@ jobs:
       - name: Archive performance data
         if: always()
         run: |
+          export CKPTFLOW_HOME=$(pwd)
+          cd artifacts/GEM5
+          export GEM5_HOME=$(pwd)
           # Create archive directory with timestamp and commit
           ARCHIVE_ROOT="/nfs/home/xutongqiao/github-caches/cache_XiangShan-CkptFlow/GEM5-performance"
           BENCHMARK_DIR="${ARCHIVE_ROOT}/${{ inputs.benchmark_type }}"
@@ -146,11 +149,11 @@ jobs:
           
           # Archive entire spec_all directory with compression
           echo "Archiving performance data to $TARGET_DIR"
-          tar -czf "$TARGET_DIR/spec_all.tar.gz" -C "$GITHUB_WORKSPACE/util/xs_scripts/test" spec_all
+          tar -czf "$TARGET_DIR/spec_all.tar.gz" -C "$GEM5_HOME/util/xs_scripts/test" spec_all
           
           # Also save score.txt for quick reference
-          if [ -f "$GITHUB_WORKSPACE/score.txt" ]; then
-            cp "$GITHUB_WORKSPACE/score.txt" "$TARGET_DIR/"
+          if [ -f "$GEM5_HOME/score.txt" ]; then
+            cp "$GEM5_HOME/score.txt" "$TARGET_DIR/"
           fi
           
           # Save metadata

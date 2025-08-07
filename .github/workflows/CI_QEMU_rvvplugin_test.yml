@@ -6,7 +6,7 @@ on:
       test_case:
         required: true
         type: string
-        default: "471.omnetpp(your elf) -f omnetpp.ini(your input)"
+        default: "/nfs/home/xutongqiao/checkpoint_tools/jiaxiaoyu_250314_elf/elf/xalancbmk -v /nfs/home/xutongqiao/checkpoint_tools/cpu2006v99/benchspec/CPU2006/483.xalancbmk/data/test/input/test.xml /nfs/home/xutongqiao/checkpoint_tools/cpu2006v99/benchspec/CPU2006/483.xalancbmk/data/test/input/xalanc.xsl"
 
 jobs:
   run-QEMU_rvvplugin-test:
