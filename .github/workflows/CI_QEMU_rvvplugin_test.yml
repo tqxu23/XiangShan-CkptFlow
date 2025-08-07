@@ -1,0 +1,93 @@
+name: GEM5 Test
+
+on:
+  workflow_dispatch:
+    inputs:
+      test_case:
+        required: true
+        type: string
+        default: "471.omnetpp(your elf) -f omnetpp.ini(your input)"
+
+jobs:
+  run-QEMU_rvvplugin-test:
+    runs-on: [self-hosted]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Clone qemu_rvvplugin submodule
+        run: |
+          export CKPTFLOW_HOME=$(pwd)
+          git submodule update --init artifacts/qemu_rvvplugin
+      - name: Build QEMU
+        run: |
+          export CKPTFLOW_HOME=$(pwd)
+          cd artifacts/qemu_rvvplugin
+          export QEMU_HOME=$(pwd)
+          mkdir build
+          cd build
+          ../configure --enable-plugins
+          make -j64
+
+      - name: QEMU - Run performance test
+        # ${{ steps.config.outputs.comment }}
+        run: |
+          # 不使用全过程trace, 避免空间占用过大
+          export CKPTFLOW_HOME=$(pwd)
+          rm -rf rvvplugin_utils
+          mkdir rvvplugin_utils
+          cd artifacts/qemu_rvvplugin
+
+          export QEMU_HOME=$(pwd)
+          echo "::group::[Run QEMU]"
+          ./build/qemu-riscv64 -plugin ./build/contrib/plugins/libhotblocks.so \
+            -d plugin \
+            ${{ inputs.test_case }} \
+            2> $CKPTFLOW_HOME/rvvplugin_utils/plugin_rpt.txt 
+          echo "::endgroup::"
+
+      - name: Archive performance data
+        if: always()
+        run: |
+        
+          # Create archive directory with timestamp and commit
+          ARCHIVE_ROOT="/nfs/home/xutongqiao/github-caches/cache_XiangShan-CkptFlow/QEMU"
+          BENCHMARK_DIR="${ARCHIVE_ROOT}/qemu-rvvplugin-log"
+          TIMESTAMP=$(date +"%Y%m%d_%H%M%S")
+          COMMIT_SHORT=$(git rev-parse --short HEAD)
+          RUN_NUMBER="${{ github.run_number }}"
+          TARGET_DIR="${BENCHMARK_DIR}/${TIMESTAMP}_${COMMIT_SHORT}_run${RUN_NUMBER}"
+          
+          # Create target directory
+          mkdir -p "$TARGET_DIR"
+
+          export CKPTFLOW_HOME=$(pwd)
+          
+          # Save result.txt for quick reference
+          cp "$CKPTFLOW_HOME/rvvplugin_utils/plugin_rpt.txt" "$TARGET_DIR/"
+          
+          # Save metadata
+          echo "timestamp: $TIMESTAMP" > "$TARGET_DIR/metadata.txt"
+          echo "run_number: $RUN_NUMBER" >> "$TARGET_DIR/metadata.txt"
+          echo "test_case: ${{ inputs.test_case }}" >> "$TARGET_DIR/metadata.txt"
+          echo "workflow_run_id: ${{ github.run_id }}" >> "$TARGET_DIR/metadata.txt"
+          
+          # Auto cleanup: keep only last 50 runs for this benchmark type
+          if [ -d "$BENCHMARK_DIR" ] && [ $(ls -1 "$BENCHMARK_DIR" 2>/dev/null | wc -l) -gt 50 ]; then
+            echo "Cleaning up old performance data, keeping last 50 runs"
+            # Use absolute paths to avoid accidental deletion if cd fails
+            ls -1t "$BENCHMARK_DIR" | tail -n +51 | while read -r old_run; do
+              if [ -n "$old_run" ] && [ -d "$BENCHMARK_DIR/$old_run" ]; then
+                rm -rf "$BENCHMARK_DIR/$old_run"
+                echo "Deleted: $BENCHMARK_DIR/$old_run"
+              fi
+            done
+            echo "Cleanup completed"
+          fi
+          
+          echo "Performance data archived successfully"
+          echo "Archive size: $(du -sh "$TARGET_DIR/spec_all.tar.gz" | cut -f1)"
+      - name: Upload score
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ steps.config.outputs.artifact_name }}
+          path: ${{ github.workspace }}/plugin_rpt.txt 
