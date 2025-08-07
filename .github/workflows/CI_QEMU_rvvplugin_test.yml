@@ -93,7 +93,7 @@ jobs:
         run: |
           echo "### QEMU Output" >> $GITHUB_STEP_SUMMARY
 
-          FILE="${{ github.workspace }}/rvvplugin_utils/plugin_rpt.txt"
+          FILE="${{ github.workspace }}/rvvplugin_utils/plugin_vinstrace.txt"
 
           LINE_COUNT=$(wc -l < "$FILE")
 
