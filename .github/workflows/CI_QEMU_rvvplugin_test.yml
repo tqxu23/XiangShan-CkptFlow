@@ -1,4 +1,4 @@
-name: GEM5 Test
+name: QEMU_rvvplugin Test
 
 on:
   workflow_dispatch:
