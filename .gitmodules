@@ -10,3 +10,6 @@
 [submodule "artifacts/riscv-gnu-toolchain"]
 	path = artifacts/riscv-gnu-toolchain
 	url = https://github.com/riscv-collab/riscv-gnu-toolchain
+[submodule "artifacts/checkpoint_scripts"]
+	path = artifacts/checkpoint_scripts
+	url = https://github.com/xyyy1420/checkpoint_scripts
