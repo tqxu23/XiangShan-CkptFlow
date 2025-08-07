@@ -23,6 +23,8 @@ jobs:
           git rm spike
           git submodule update --init --recursive
           
+      - name: Build RISCV toolchain submodule
+        run: |
           # 编译命令
           if [ "${{ github.event.inputs.is_vector }}" = "true" ]; then
             echo "Configure with vector support"
