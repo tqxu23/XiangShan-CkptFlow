@@ -7,6 +7,10 @@ on:
         required: true
         type: string
         default: "/nfs/home/xutongqiao/checkpoint_tools/jiaxiaoyu_250314_elf/elf/xalancbmk -v /nfs/home/xutongqiao/checkpoint_tools/cpu2006v99/benchspec/CPU2006/483.xalancbmk/data/test/input/test.xml /nfs/home/xutongqiao/checkpoint_tools/cpu2006v99/benchspec/CPU2006/483.xalancbmk/data/test/input/xalanc.xsl"
+      update_qemu:
+        required: true
+        type: boolean
+        default: false
 
 jobs:
   run-QEMU_rvvplugin-test:
@@ -23,15 +27,11 @@ jobs:
           cd artifacts/qemu_rvvplugin
           export QEMU_HOME=$(pwd)
 
-          # 如果 build 目录存在并且有 qemu-system-* 可执行文件，就跳过构建
-          if [ -d build ] && [ -x build/qemu-system-riscv64 ]; then
-            echo "QEMU already built. Skipping build."
-          else
-            mkdir -p build
-            cd build
-            ../configure --enable-plugins
-            make -j64
-          fi
+          rm -rf build
+          mkdir -p build
+          cd build
+          ../configure --enable-plugins
+          make -j64
 
       - name: QEMU - Run performance test
         # ${{ steps.config.outputs.comment }}
