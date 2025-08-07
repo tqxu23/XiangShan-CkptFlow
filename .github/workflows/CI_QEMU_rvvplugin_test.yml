@@ -26,8 +26,10 @@ jobs:
           rm -rf build
           mkdir -p build
           cd build
+          echo "::group::[Build QEMU]"
           ../configure --enable-plugins
           make -j64
+          echo "::endgroup::"
 
       - name: QEMU - Run performance test
         # ${{ steps.config.outputs.comment }}
