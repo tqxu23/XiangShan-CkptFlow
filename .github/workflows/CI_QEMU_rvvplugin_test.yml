@@ -83,11 +83,14 @@ jobs:
             echo "Cleanup completed"
           fi
           
-          echo "Performance data archived successfully"
-          echo "Archive size: $(du -sh "$TARGET_DIR/spec_all.tar.gz" | cut -f1)"
+      - name: Add QEMU output to Summary
+        run: |
+          echo "### QEMU Output" >> $GITHUB_STEP_SUMMARY
+          cat ${{ github.workspace }}/rvvplugin_utils/plugin_rpt.txt >> $GITHUB_STEP_SUMMARY
+
       - name: Upload score
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: ${{ steps.config.outputs.artifact_name }}
-          path: ${{ github.workspace }}/plugin_rpt.txt 
+          path: ${{ github.workspace }}/rvvplugin_utils/plugin_rpt.txt
