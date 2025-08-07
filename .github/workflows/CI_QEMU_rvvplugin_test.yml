@@ -92,10 +92,30 @@ jobs:
       - name: Add QEMU output to Summary
         run: |
           echo "### QEMU Output" >> $GITHUB_STEP_SUMMARY
-          head -100 ${{ github.workspace }}/rvvplugin_utils/plugin_rpt.txt >> $GITHUB_STEP_SUMMARY
-          echo "### RVV insts Output" >> $GITHUB_STEP_SUMMARY
-          cat ${{ github.workspace }}/rvvplugin_utils/plugin_vinstrace.txt >> $GITHUB_STEP_SUMMARY
 
+          FILE="${{ github.workspace }}/rvvplugin_utils/plugin_rpt.txt"
+
+          LINE_COUNT=$(wc -l < "$FILE")
+
+          if [ "$LINE_COUNT" -gt 100 ]; then
+            echo "File has more than 100 lines ($LINE_COUNT lines). Showing first 100 lines only." >> $GITHUB_STEP_SUMMARY
+            head -n 100 "$FILE" >> $GITHUB_STEP_SUMMARY
+          else
+            cat "$FILE" >> $GITHUB_STEP_SUMMARY
+          fi
+
+          echo "### RVV insts Output" >> $GITHUB_STEP_SUMMARY
+
+          FILE="${{ github.workspace }}/rvvplugin_utils/plugin_rpt.txt"
+
+          LINE_COUNT=$(wc -l < "$FILE")
+
+          if [ "$LINE_COUNT" -gt 100 ]; then
+            echo "File has more than 100 lines ($LINE_COUNT lines). Showing first 100 lines only." >> $GITHUB_STEP_SUMMARY
+            head -n 100 "$FILE" >> $GITHUB_STEP_SUMMARY
+          else
+            cat "$FILE" >> $GITHUB_STEP_SUMMARY
+          fi
       - name: Upload score
         if: always()
         uses: actions/upload-artifact@v4
