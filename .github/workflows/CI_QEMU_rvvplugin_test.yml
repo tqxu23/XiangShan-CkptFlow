@@ -22,10 +22,16 @@ jobs:
           export CKPTFLOW_HOME=$(pwd)
           cd artifacts/qemu_rvvplugin
           export QEMU_HOME=$(pwd)
-          mkdir build
-          cd build
-          ../configure --enable-plugins
-          make -j64
+
+          # 如果 build 目录存在并且有 qemu-system-* 可执行文件，就跳过构建
+          if [ -d build ] && [ -x build/qemu-system-riscv64 ]; then
+            echo "QEMU already built. Skipping build."
+          else
+            mkdir -p build
+            cd build
+            ../configure --enable-plugins
+            make -j64
+          fi
 
       - name: QEMU - Run performance test
         # ${{ steps.config.outputs.comment }}
