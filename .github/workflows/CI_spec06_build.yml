@@ -33,6 +33,7 @@ jobs:
         run: |
           export CKPTFLOW_HOME=$(pwd)
           cd artifacts/CPU2006LiteWrapper
+          make clean-all
           export SPEC=$CKPTFLOW_HOME/cpu2006v99
           pushd $SPEC && source shrc && popd
           make copy-all-src
