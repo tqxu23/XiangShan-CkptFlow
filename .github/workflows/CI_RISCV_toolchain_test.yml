@@ -35,4 +35,19 @@ jobs:
             mkdir $CKPTFLOW_HOME/riscv-toolchain-build-scalar
             ./configure --prefix=$CKPTFLOW_HOME/riscv-toolchain-build-scalar --with-abi=lp64d --with-arch=rv64gc
           fi
-          make linux -j
+          make linux -j > build.log 2>&1
+      - name: Enable jemalloc
+        run: |
+          git submodule update --init artifacts/CPU2006LiteWrapper
+          if [ "${{ github.event.inputs.is_vector }}" = "true" ]; then
+            export RISCV=$CKPTFLOW_HOME/riscv-toolchain-build-scalar
+          else
+            export RISCV=$CKPTFLOW_HOME/riscv-toolchain-build-scalar
+          fi
+          git clone https://github.com/jemalloc/jemalloc.git
+          cd jemalloc
+          cp $CKPTFLOW_HOME/artifacts/CPU2006LiteWrapper/jemalloc_cpp.patch ./
+          git checkout -b apply-patch da66aa391f853ccf2300845b3873cc8f1cf48f2d
+          git apply jemalloc_cpp.patch
+          CC=$RISCV/bin/riscv64-unknown-linux-gnu-gcc CXX=$RISCV/bin/riscv64-unknown-linux-gnu-c++ LD=$RISCV/bin/riscv64-unknown-linux-gnu-ld ./autogen.sh --prefix=$RISCV --host=x86_64-linux-gnu
+          make && make install
