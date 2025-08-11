@@ -18,13 +18,14 @@ on:
 
 jobs:
   run-SPEC06-build-test:
-    name: Run CI-param-test with PARAM=${{ github.event.inputs.param }}
+    name: Run CI-param-test with GCC=${{ github.event.inputs.gcc-path }}, OPTIMIZE=${{ github.event.inputs.compile-optimize }}
     runs-on: [self-hosted]
     steps:
       - uses: actions/checkout@v4
       
       - name: clone submodules and clone spec
         run: |
+          export CKPTFLOW_HOME=$(pwd)
           git submodule update --init artifacts/CPU2006LiteWrapper
           cp -r ${{ github.event.inputs.spec-path }} $CKPTFLOW_HOME/cpu2006v99
 
