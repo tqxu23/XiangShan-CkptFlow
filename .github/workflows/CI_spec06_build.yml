@@ -45,6 +45,7 @@ jobs:
             CROSS_COMPILE=riscv64-unknown-linux-gnu- \
             OPTIMIZE="${{ github.event.inputs.compile-optimize }}" \
             build-all -j `nproc`
+          rc=$?
           # 忽略退出码为 2 的情况
           if [ $rc -ne 0 ] && [ $rc -ne 2 ]; then
             exit $rc
