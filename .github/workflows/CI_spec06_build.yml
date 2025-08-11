@@ -30,6 +30,7 @@ jobs:
 
       - name: build spec06
         run: |
+          export CKPTFLOW_HOME=$(pwd)
           cd artifacts/CPU2006LiteWrapper
           export SPEC=$CKPTFLOW_HOME/cpu2006v99
           pushd $SPEC && source shrc && popd
