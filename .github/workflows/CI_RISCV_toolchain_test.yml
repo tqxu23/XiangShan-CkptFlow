@@ -18,9 +18,9 @@ jobs:
           export CKPTFLOW_HOME=$(pwd)
           git submodule update --init artifacts/riscv-gnu-toolchain
           cd artifacts/riscv-gnu-toolchain
-          git rm pk
-          git rm qemu
-          git rm spike
+          [ -e pk ] && git rm pk
+          [ -e qemu ] && git rm qemu
+          [ -e spike ] && git rm spike
           git submodule update --init --recursive
           
       - name: Build RISCV toolchain submodule
