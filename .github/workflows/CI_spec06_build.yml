@@ -6,7 +6,7 @@ on:
       gcc-path:
         description: 'GCC PATH'
         required: true
-        default: '/nfs/home/xutongqiao/apps/risv-toolchain-build-scalar'
+        default: '/nfs/home/xutongqiao/apps/riscv-toolchain-build-scalar'
       spec-path:
         description: 'SPEC PATH'
         required: true
