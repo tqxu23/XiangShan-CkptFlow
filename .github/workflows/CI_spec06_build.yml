@@ -32,6 +32,7 @@ jobs:
       - name: build spec06
         run: |
           export CKPTFLOW_HOME=$(pwd)
+          export ARCH=riscv64
           cd artifacts/CPU2006LiteWrapper
           make clean-all
           export SPEC=$CKPTFLOW_HOME/cpu2006v99
