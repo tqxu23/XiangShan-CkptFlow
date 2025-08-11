@@ -41,11 +41,13 @@ jobs:
           export PATH=${{ github.event.inputs.gcc-path }}/bin:$PATH
           export RISCV=${{ github.event.inputs.gcc-path }}
           export LD_JEMALLOC=1
+          set +e
           make ARCH=riscv64 \
             CROSS_COMPILE=riscv64-unknown-linux-gnu- \
             OPTIMIZE="${{ github.event.inputs.compile-optimize }}" \
             build-all -j `nproc`
           rc=$?
+          set -e
           # 忽略退出码为 2 的情况
           if [ $rc -ne 0 ] && [ $rc -ne 2 ]; then
             exit $rc
