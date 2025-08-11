@@ -25,6 +25,7 @@ jobs:
           
       - name: Build RISCV toolchain submodule
         run: |
+          export CKPTFLOW_HOME=$(pwd)
           # 编译命令
           if [ "${{ github.event.inputs.is_vector }}" = "true" ]; then
             echo "Configure with vector support"
@@ -38,9 +39,10 @@ jobs:
           make linux -j > build.log 2>&1
       - name: Enable jemalloc
         run: |
+          export CKPTFLOW_HOME=$(pwd)
           git submodule update --init artifacts/CPU2006LiteWrapper
           if [ "${{ github.event.inputs.is_vector }}" = "true" ]; then
-            export RISCV=$CKPTFLOW_HOME/riscv-toolchain-build-scalar
+            export RISCV=$CKPTFLOW_HOME/riscv-toolchain-build-vector
           else
             export RISCV=$CKPTFLOW_HOME/riscv-toolchain-build-scalar
           fi

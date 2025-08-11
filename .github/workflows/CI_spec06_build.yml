@@ -1,0 +1,50 @@
+name: CI SPEC06 Build Test
+
+on:
+  workflow_dispatch:
+    inputs:
+      gcc-path:
+        description: 'GCC PATH'
+        required: true
+        default: '/nfs/home/xutongqiao/apps/risv-toolchain-build-scalar'
+      spec-path:
+        description: 'SPEC PATH'
+        required: true
+        default: '/nfs/home/share/cpu2006v99'
+      compile-optimize:
+        description: 'compile optimize options'
+        required: true
+        default: '-O3 -flto -march=rv64gcv_zvl128b_zba_zbb_zbc_zbs -ftree-vectorize  -mabi=lp64d -mrvv-max-lmul=m4 -mrvv-vector-bits=zvl'
+
+jobs:
+  run-SPEC06-build-test:
+    name: Run CI-param-test with PARAM=${{ github.event.inputs.param }}
+    runs-on: [self-hosted]
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: clone submodules and clone spec
+        run: |
+          git submodule update --init artifacts/CPU2006LiteWrapper
+          cp -r ${{ github.event.inputs.spec-path }} $CKPTFLOW_HOME/cpu2006v99
+
+      - name: build spec06
+        run: |
+          cd artifacts/CPU2006LiteWrapper
+          export SPEC=$CKPTFLOW_HOME/cpu2006v99
+          pushd $SPEC && source shrc && popd
+          make copy-all-src
+          export PATH=${{ github.event.inputs.gcc-path }}/bin:$PATH
+          export RISCV=${{ github.event.inputs.gcc-path }}
+          export LD_JEMALLOC=1
+          make ARCH=riscv64 \
+            CROSS_COMPILE=riscv64-unknown-linux-gnu- \
+            OPTIMIZE="${{ github.event.inputs.compile-optimize }}" \
+            build-all -j `nproc`
+          
+
+      - name: Upload output.txt as Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: hello-output
+          path: output.txt
