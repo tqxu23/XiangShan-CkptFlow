@@ -1,3 +1,4 @@
+# 这个CI用于QEMU测试，通过使用QEMU plugin统计test case的bbl和rvv指令情况。
 name: QEMU_rvvplugin Test
 
 on:
@@ -32,7 +33,6 @@ jobs:
           echo "::endgroup::"
 
       - name: QEMU - Run performance test
-        # ${{ steps.config.outputs.comment }}
         run: |
           export CKPTFLOW_HOME=$(pwd)
           rm -rf rvvplugin_utils

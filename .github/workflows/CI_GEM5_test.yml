@@ -1,17 +1,21 @@
+# 这个CI用于GEM5的自动运行，是依照GEM5仓库下的CI进行的移植。目前仅支持一个spec06的checkpoint，待增加更多支持。
 name: GEM5 Test
 
 on:
   workflow_dispatch:
     inputs:
+      # 这里指定了运行checkpoint所需的gem5配置（KMHV2），使用的是artifacts下的脚本文件
       script_path:
         required: true
         type: string
         default: "../gem5_config_kmhv2.sh"
+      # 这里现在仅支持spec06-0.8c，待加入更多切片/修改切片的配置模式
       benchmark_type:
         required: true
         type: string
-        description: "Benchmark type: spec06-0.8c, spec06-1.0c, spec17-1.0c, spec06-rvv-1.0c or spec06int-rvv-0.8c"
+        description: "Benchmark type: spec06-0.8c, to be added"
         default: "spec06-0.8c"
+      # 是否需要判断结果，如果判断结果则在CI上会在未跑过程序时报错
       check_result:
         required: false
         type: boolean
@@ -22,10 +26,12 @@ jobs:
     runs-on: [self-hosted]
     steps:
       - uses: actions/checkout@v4
+      # 对于Clone Submodule
       - name: Clone GEM5 submodule
         run: |
           export CKPTFLOW_HOME=$(pwd)
           git submodule update --init artifacts/GEM5
+      # 对于checkpoint配置专门的configuration
       - name: Set benchmark configuration
         id: config
         run: |
@@ -43,6 +49,7 @@ jobs:
               exit 1
               ;;
           esac
+      # 在运行前需要拉取DRAMSim
       - name: Build DRAMSim
         run: |
           export CKPTFLOW_HOME=$(pwd)
@@ -57,6 +64,7 @@ jobs:
           cmake ..
           make -j 48
           cd $GEM5_HOME
+      # 编译GEM5，这里是GEM5 fast，是跑了一遍后通过再进行一次优化来获得
       - name: Build GEM5 fast
         run: |
           echo "::group::[Build GEM5 fast]"
@@ -69,8 +77,8 @@ jobs:
           echo "::endgroup::"
 
 
+      # 正式开始运行性能测试
       - name: XS-GEM5 - Run performance test
-        # ${{ steps.config.outputs.comment }}
         run: |
           export CKPTFLOW_HOME=$(pwd)
           cd artifacts/GEM5
@@ -81,16 +89,19 @@ jobs:
           rm -rf $GEM5_HOME/util/xs_scripts/test
           mkdir -p $GEM5_HOME/util/xs_scripts/test
           cd $GEM5_HOME/util/xs_scripts/test
+          # 注意，这里把gem5_config_kmhv2.sh copy到GEM5路径下了，是为了便于访问，至于是否真的用它取决于用户输入配置
           cp $CKPTFLOW_HOME/artifacts/gem5_config_kmhv2.sh ../gem5_config_kmhv2.sh
           bash ../parallel_sim.sh `realpath ${{ inputs.script_path }}` \
             ${{ steps.config.outputs.checkpoint_list }} \
             ${{ steps.config.outputs.checkpoint_root_node}} \
             spec_all
+      # 我们用gem5_data_proc进行算分，先clone这个仓库
       - name: Setup gem5_data_proc environment
         run: |
           # 克隆数据处理仓库到 CI 工作目录
           cd $GITHUB_WORKSPACE
           git clone https://github.com/shinezyy/gem5_data_proc
+      # 看看有没有哪个checkpoint出现问题了
       - name: Check performance test result
         run: |
           # 添加yanyue的 Python 包路径, 包含pandas等
@@ -130,6 +141,7 @@ jobs:
                 exit 1
               fi
           fi
+      # 上传数据、分数
       - name: Archive performance data
         if: always()
         run: |

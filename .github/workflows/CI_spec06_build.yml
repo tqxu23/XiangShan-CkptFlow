@@ -1,3 +1,4 @@
+# 这个CI用于使用编译器编译SPEC06 INT的elf文件
 name: CI SPEC06 Build Test
 
 on:

@@ -1,3 +1,4 @@
+# 这个CI用于构建RISCV交叉编译器，包含jemalloc的过程，用于编译elf文件
 name: RISC-V Toolchain Test
 
 on:
