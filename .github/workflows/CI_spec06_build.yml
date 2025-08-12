@@ -6,11 +6,11 @@ on:
       gcc-path:
         description: 'GCC PATH'
         required: true
-        default: '/nfs/home/xutongqiao/apps/riscv-toolchain-build-scalar'
+        default: '/nfs/home/xutongqiao/apps/riscv-toolchain-build-vector'
       spec-path:
         description: 'SPEC PATH'
         required: true
-        default: '/nfs/home/share/cpu2006v99'
+        default: '/nfs/home/xutongqiao/checkpoint_tools/cpu2006v99'
       compile-optimize:
         description: 'compile optimize options'
         required: true
@@ -41,20 +41,7 @@ jobs:
           export PATH=${{ github.event.inputs.gcc-path }}/bin:$PATH
           export RISCV=${{ github.event.inputs.gcc-path }}
           export LD_JEMALLOC=1
-          set +e
           make ARCH=riscv64 \
             CROSS_COMPILE=riscv64-unknown-linux-gnu- \
             OPTIMIZE="${{ github.event.inputs.compile-optimize }}" \
             build-all -j `nproc`
-          rc=$?
-          set -e
-          # 忽略退出码为 2 的情况
-          if [ $rc -ne 0 ] && [ $rc -ne 2 ]; then
-            exit $rc
-          fi
-
-      - name: Upload output.txt as Artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: hello-output
-          path: output.txt

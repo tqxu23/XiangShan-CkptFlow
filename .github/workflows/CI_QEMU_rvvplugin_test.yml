@@ -89,6 +89,7 @@ jobs:
           
       - name: Add QEMU output to Summary
         run: |
+          echo "## Workload: ${{ inputs.test_case }}" >> $GITHUB_STEP_SUMMARY
           echo "### QEMU Output" >> $GITHUB_STEP_SUMMARY
 
           FILE="${{ github.workspace }}/rvvplugin_utils/plugin_vinstrace.txt"
